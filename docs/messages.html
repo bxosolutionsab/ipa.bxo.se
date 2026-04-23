@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenIPA | Messages</title>
+  <meta name="description" content="OpenIPA message reference for Ack, Heartbeat, TextMessage, and Alarm.">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="OpenIPA home">
+      <span class="brand-mark">IPA</span>
+      <span class="brand-copy">
+        <strong>OpenIPA</strong>
+        <span>Internet Protocol for Alarm Management</span>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="../index.html">Overview</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="transport.html">Transport</a>
+      <a href="messages.html">Messages</a>
+      <a href="reference.html">Reference</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
+  </header>
+
+  <nav class="mobile-nav" id="site-nav" aria-label="Mobile" data-mobile-nav>
+    <a href="../index.html">Overview</a>
+    <a href="getting-started.html">Getting Started</a>
+    <a href="transport.html">Transport</a>
+    <a href="messages.html">Messages</a>
+    <a href="reference.html">Reference</a>
+  </nav>
+
+  <main class="docs-main">
+    <section class="page-intro">
+      <p class="eyebrow">Messages</p>
+      <h1>The published message set</h1>
+      <p>The current draft describes four core message families. This page uses the XML element names directly so the prose matches the examples.</p>
+    </section>
+
+    <section class="content-shell">
+      <aside class="toc" data-page-nav>
+        <p class="toc-title">On this page</p>
+        <a href="#overview">Overview</a>
+        <a href="#ack">Ack</a>
+        <a href="#heartbeat">Heartbeat</a>
+        <a href="#textmessage">TextMessage</a>
+        <a href="#alarm">Alarm</a>
+      </aside>
+
+      <div class="content-flow">
+        <section class="panel" id="overview">
+          <p class="section-kicker">Message map</p>
+          <h2>Overview</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Message</th>
+                  <th>Description</th>
+                  <th>Sender support</th>
+                  <th>Receiver support</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><a href="#ack">Ack</a></td><td>Acknowledgement</td><td>Mandatory</td><td>Mandatory</td></tr>
+                <tr><td><a href="#heartbeat">Heartbeat</a></td><td>Connection monitoring</td><td>Mandatory</td><td>Mandatory</td></tr>
+                <tr><td><a href="#textmessage">TextMessage</a></td><td>Plain text delivery</td><td>Optional</td><td>Optional</td></tr>
+                <tr><td><a href="#alarm">Alarm</a></td><td>Alarm delivery</td><td>Optional</td><td>Optional</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="ack">
+          <p class="section-kicker">Message type</p>
+          <h2>Ack</h2>
+          <p>`Ack` acknowledges a previously received message. It copies the original `Id`, returns a `Result` code, and may include a short plain-text explanation in the element body.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Id</td><td>`Id` from the original message.</td><td>Yes</td></tr>
+                <tr><td>Result</td><td>Application result code.</td><td>Yes</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <pre><code>&lt;Ack Id="123" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="heartbeat">
+          <p class="section-kicker">Message type</p>
+          <h2>Heartbeat</h2>
+          <p>`Heartbeat` is used to monitor the connection. Either side may send it. If an `Id` is present, the peer is expected to answer with an `Ack`.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Id</td><td>Requests an acknowledgement when present.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>With acknowledgement requested</h3>
+          <pre><code>&lt;Heartbeat Id="123" /&gt;</code></pre>
+          <pre><code>&lt;Ack Id="123" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+          <h3>Without acknowledgement requested</h3>
+          <pre><code>&lt;Heartbeat /&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="textmessage">
+          <p class="section-kicker">Message type</p>
+          <h2>TextMessage</h2>
+          <p>`TextMessage` requests delivery of a plain text message.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Id</td><td>Requests an acknowledgement when present.</td><td>No</td></tr>
+                <tr><td>To</td><td>Recipient number or address.</td><td>No</td></tr>
+                <tr><td>From</td><td>Sender number or address.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The message body contains the text itself.</p>
+          <pre><code>&lt;TextMessage To="someone@somewhere.com"&gt;Hello,
+This is a text message.&lt;/TextMessage&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="alarm">
+          <p class="section-kicker">Message type</p>
+          <h2>Alarm</h2>
+          <p>`Alarm` carries alarm or event data. The draft defines a compact core structure built around `Source`, `Type`, and optional `Location`.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Id</td><td>Requests an acknowledgement when present.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Source</td><td>Identifies the source of the alarm.</td><td>Yes</td></tr>
+                <tr><td>Type</td><td>Identifies the alarm type and may carry additional qualifiers such as severity.</td><td>Yes</td></tr>
+                <tr><td>Location</td><td>Describes the location when it is known.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Simple example</h3>
+          <pre><code>&lt;Alarm&gt;&lt;Source&gt;209&lt;/Source&gt;&lt;Type&gt;FIRE&lt;/Type&gt;&lt;/Alarm&gt;</code></pre>
+          <h3>Detailed example</h3>
+          <pre><code>&lt;Alarm Id="101"&gt;
+    &lt;Source&gt;
+        &lt;Section&gt;5&lt;/Section&gt;
+        &lt;Room&gt;50&lt;/Room&gt;
+    &lt;/Source&gt;
+    &lt;Type Qualifier="New" Severity="100"&gt;FIRE&lt;/Type&gt;
+    &lt;Location&gt;
+        &lt;Gps&gt;
+            &lt;Longitude&gt;17.87930&lt;/Longitude&gt;
+            &lt;Latitude&gt;59.41310&lt;/Latitude&gt;
+            &lt;Altitude&gt;57&lt;/Altitude&gt;
+        &lt;/Gps&gt;
+    &lt;/Location&gt;
+&lt;/Alarm&gt;</code></pre>
+          <p>This example is intentionally limited to fields that are described elsewhere in the current draft.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>OpenIPA / Internet Protocol for Alarm Management</p>
+    <p>The reference page covers alarm sub-elements and result codes in more detail.</p>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+</body>
+</html>

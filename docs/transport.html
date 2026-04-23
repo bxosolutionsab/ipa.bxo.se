@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenIPA | Transport</title>
+  <meta name="description" content="OpenIPA transport framing, timing constants, and published security notes.">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="OpenIPA home">
+      <span class="brand-mark">IPA</span>
+      <span class="brand-copy">
+        <strong>OpenIPA</strong>
+        <span>Internet Protocol for Alarm Management</span>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="../index.html">Overview</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="transport.html">Transport</a>
+      <a href="messages.html">Messages</a>
+      <a href="reference.html">Reference</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
+  </header>
+
+  <nav class="mobile-nav" id="site-nav" aria-label="Mobile" data-mobile-nav>
+    <a href="../index.html">Overview</a>
+    <a href="getting-started.html">Getting Started</a>
+    <a href="transport.html">Transport</a>
+    <a href="messages.html">Messages</a>
+    <a href="reference.html">Reference</a>
+  </nav>
+
+  <main class="docs-main">
+    <section class="page-intro">
+      <p class="eyebrow">Transport</p>
+      <h1>Framing and connection rules</h1>
+      <p>The current draft frames XML messages over a TCP transport with a fixed request line, a mandatory length header, and asynchronous message exchange.</p>
+    </section>
+
+    <section class="content-shell">
+      <aside class="toc" data-page-nav>
+        <p class="toc-title">On this page</p>
+        <a href="#transport-overview">Overview</a>
+        <a href="#session">Example session</a>
+        <a href="#requirements">Requirements</a>
+        <a href="#timing">Timing constants</a>
+        <a href="#security">Security notes</a>
+      </aside>
+
+      <div class="content-flow">
+        <section class="panel" id="transport-overview">
+          <p class="section-kicker">Wire format</p>
+          <h2>Transport overview</h2>
+          <p>OpenIPA sends XML messages over a TCP-based transport that resembles HTTP framing, but the draft treats communication as asynchronous rather than request-response in the strict HTTP sense. The framing exists so the receiver can determine where each XML message starts and ends.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Part</th>
+                  <th>Example</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Request line</td>
+                  <td><code>PUT / IPA/1.0</code></td>
+                  <td>Fixed line defined by the draft.</td>
+                </tr>
+                <tr>
+                  <td>Header</td>
+                  <td><code>Content-Length: 52</code></td>
+                  <td>Mandatory message length metadata.</td>
+                </tr>
+                <tr>
+                  <td>Separator</td>
+                  <td>Empty line</td>
+                  <td>Separates headers from the XML payload.</td>
+                </tr>
+                <tr>
+                  <td>Payload</td>
+                  <td><code>&lt;TextMessage Id="100" To="123"&gt;Testing&lt;/TextMessage&gt;</code></td>
+                  <td>The XML message itself.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="session">
+          <p class="section-kicker">Example</p>
+          <h2>Example session</h2>
+          <p>A sender transmits a message with an `Id`, which requests an acknowledgement.</p>
+          <pre><code>PUT / IPA/1.0
+Content-Length: 52
+
+&lt;TextMessage Id="100" To="123"&gt;Testing&lt;/TextMessage&gt;</code></pre>
+          <p>The receiver later answers with an `Ack` carrying the same `Id`.</p>
+          <pre><code>PUT / IPA/1.0
+Content-Length: 35
+
+&lt;Ack Id="100" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="requirements">
+          <p class="section-kicker">Requirements</p>
+          <h2>Published transport requirements</h2>
+          <ul>
+            <li>The request line is fixed as `PUT / IPA/1.0`.</li>
+            <li>`Content-Length` is mandatory.</li>
+            <li>Other header fields may be added, but peers are not required to understand them.</li>
+            <li>XML is encoded as UTF-8, with pure 7-bit ASCII also allowed by the draft.</li>
+          </ul>
+        </section>
+
+        <section class="panel" id="timing">
+          <p class="section-kicker">Timing</p>
+          <h2>Timing constants</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Description</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>T ACK [s]</td><td>Time between a message and its acknowledgement.</td><td>-</td><td>8</td></tr>
+                <tr><td>T HB [s]</td><td>Heartbeat interval.</td><td>10</td><td>-</td></tr>
+                <tr><td>T MHB [s]</td><td>Delay after a missed heartbeat before trying a new connection.</td><td>10</td><td>60</td></tr>
+                <tr><td>T ALIVE [s]</td><td>Maximum idle time before a connection is considered stale.</td><td>120</td><td>600</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="security">
+          <p class="section-kicker">Operational notes</p>
+          <h2>Published security notes</h2>
+          <p>The current draft discusses security as three related concerns rather than as a complete mandatory profile.</p>
+          <h3>Identification</h3>
+          <p>If multiple clients connect to the same server, the client may need to identify itself.</p>
+          <pre><code>&lt;Heartbeat Id="103" ClientId="012345" /&gt;</code></pre>
+          <h3>Authentication</h3>
+          <p>The draft sketches authentication as an attribute carried in the message.</p>
+          <pre><code>&lt;Heartbeat Id="103" Authentication="dz80mi0pql+js9028jm8c89jv8" /&gt;</code></pre>
+          <h3>Encryption</h3>
+          <p>The draft explicitly says authentication is of limited value without transport encryption, and recommends using TLS on the TCP socket.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>OpenIPA / Internet Protocol for Alarm Management</p>
+    <p>The message pages describe the XML payloads carried by this framing layer.</p>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+</body>
+</html>
