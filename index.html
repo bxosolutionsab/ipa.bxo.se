@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenIPA | Internet Protocol for Alarm Management</title>
+  <meta name="description" content="OpenIPA is an open, IP-native protocol for alarm management. This site preserves the current published protocol draft and presents it in a clearer static documentation layout.">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="OpenIPA home">
+      <span class="brand-mark">IPA</span>
+      <span class="brand-copy">
+        <strong>OpenIPA</strong>
+        <span>Internet Protocol for Alarm Management</span>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="#overview">Overview</a>
+      <a href="#specification">Specification</a>
+      <a href="#messages">Messages</a>
+      <a href="#simple-example">Examples</a>
+      <a href="#changes">Changes</a>
+      <a href="#contribute">Contribute</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="toc">Contents</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-media">
+        <img src="assets/hero.svg" alt="A network-oriented visual representing alarm messages moving across IP infrastructure.">
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">Open protocol documentation</p>
+        <h1>OpenIPA</h1>
+        <p class="hero-text">Internet Protocol for Alarm Management is an open, IP-native protocol intended to replace ESPA 4.4.4 for alarm and message delivery.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#simple-example">Start with the simplest example</a>
+          <a class="button button-secondary" href="#transport">Read the transport rules</a>
+        </div>
+        <dl class="status-strip">
+          <div>
+            <dt>Status</dt>
+            <dd>Draft / Proposal</dd>
+          </div>
+          <div>
+            <dt>Published material preserved</dt>
+            <dd>Current live content</dd>
+          </div>
+          <div>
+            <dt>Latest listed change</dt>
+            <dd>2025-03-04</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="intro-band" id="overview">
+      <div class="intro-copy">
+        <h2>A clearer front door for the protocol</h2>
+        <p>This site keeps the currently published OpenIPA material intact, but reorganizes it into a simpler reading path for implementers, reviewers, and contributors. The protocol sections below preserve the published draft content while adding a cleaner layout, better navigation, and introductory context.</p>
+      </div>
+      <div class="intro-list">
+        <div>
+          <h3>Why IPA exists</h3>
+          <p>IPA is designed to replace ESPA 4.4.4 with a similarly simple and open protocol that works well over modern IP infrastructure.</p>
+        </div>
+        <div>
+          <h3>What you will find here</h3>
+          <p>The draft specification, message definitions, security notes, timing constants, examples, and the currently published change list.</p>
+        </div>
+        <div>
+          <h3>Who this is for</h3>
+          <p>Implementers building senders or receivers, maintainers aligning docs with behavior, and anyone evaluating OpenIPA as an alarm integration protocol.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-shell">
+      <aside class="toc" id="toc">
+        <p class="toc-title">Contents</p>
+        <a href="#overview">Overview</a>
+        <a href="#at-a-glance">At a glance</a>
+        <a href="#simple-example">Simple example</a>
+        <a href="#transport">Transport</a>
+        <a href="#messages">Messages overview</a>
+        <a href="#ack">ACK</a>
+        <a href="#alarm">ALARM</a>
+        <a href="#acknowledgement">Acknowledgement</a>
+        <a href="#alarm-location">AlarmLocation</a>
+        <a href="#alarm-source">AlarmSource</a>
+        <a href="#alarm-type">AlarmType</a>
+        <a href="#heartbeat-message">HEARTBEAT</a>
+        <a href="#heartbeat-guide">Heartbeat</a>
+        <a href="#result-codes">Result Codes</a>
+        <a href="#security">Security</a>
+        <a href="#sending-alarms">Sending Alarms</a>
+        <a href="#textmessage-message">TEXTMESSAGE</a>
+        <a href="#textmessage-guide">TextMessage</a>
+        <a href="#timing-constants">Timing Constants</a>
+        <a href="#changes">Changes</a>
+        <a href="#contribute">Contribute</a>
+      </aside>
+
+      <div class="content-flow">
+        <section class="panel intro-panel" id="at-a-glance">
+          <div>
+            <p class="section-kicker">At a glance</p>
+            <h2>What implementers should know first</h2>
+          </div>
+          <div class="glance-grid">
+            <div>
+              <h3>Transport</h3>
+              <p>IPA sends XML over a TCP-based transport that resembles HTTP framing, but works asynchronously.</p>
+            </div>
+            <div>
+              <h3>Encoding</h3>
+              <p>Message encoding is UTF-8, and XML may also be sent as pure 7-bit ASCII.</p>
+            </div>
+            <div>
+              <h3>Acknowledgement model</h3>
+              <p>When an `Id` is supplied, the peer must respond with an acknowledgement within the published timing rules.</p>
+            </div>
+            <div>
+              <h3>Core message families</h3>
+              <p>`Ack`, `Heartbeat`, `TextMessage`, and `Alarm` form the published message set in the current draft.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="specification">
+          <p class="section-kicker">Published draft</p>
+          <h2>Internet Protocol for Alarm Management</h2>
+          <p>IPA (Internet Protocol for Alarm management) is designed to replace the widely used ESPA 4.4.4 standard. ESPA defines how to send text messages over serial links like RS-232 to pagers. The purpose of IPA is to provide a similarly simple, easy to use, reliable and open standard that is suitable for transmission over the now abundant IP infrastructure (including the Internet and local area networks).</p>
+          <p>The specifications are being worked on, and this page represents a draft of the first version of the emerging protocol specification.</p>
+          <div class="link-row">
+            <a href="#simple-example">Simple example</a>
+            <a href="#acknowledgement">Acknowledgement</a>
+            <a href="#sending-alarms">Sending Alarms</a>
+            <a href="#heartbeat-guide">Heartbeat</a>
+            <a href="#security">Security</a>
+          </div>
+          <div class="link-row">
+            <span class="muted">IPA Version 1 Draft / Proposal</span>
+            <a href="#transport">Transport</a>
+            <a href="#messages">Messages</a>
+          </div>
+          <p class="join-line">Join the IPA group to discuss the protocol: <a href="https://groups.google.com/" target="_blank" rel="noreferrer">Go to this group</a>.</p>
+        </section>
+
+        <section class="panel" id="simple-example">
+          <p class="section-kicker">Getting started</p>
+          <h2>Simple example</h2>
+          <p>The example below shows the simplest possible XML datagram for transmitting a text message.</p>
+          <pre><code>&lt;TextMessage To="123456"&gt;Text to display&lt;/TextMessage&gt;</code></pre>
+          <p>C# code example:</p>
+          <pre><code>using(var tcpClient = new TcpClient("127.0.0.1", 16969)) {
+    var datagram = System.Text.Encoding.ASCII.GetBytes(
+        "&lt;TextMessage To=\"123456\"&gt;Text to display&lt;/TextMessage&gt;");
+    var header = System.Text.Encoding.ASCII.GetBytes(
+        string.Format("PUT / IPA/1.0\nContent-Length: {0}\n\n", datagram.Length));
+
+    tcpClient.GetStream().Write(header, 0, header.Length);
+    tcpClient.GetStream().Write(datagram, 0, datagram.Length);
+}</code></pre>
+        </section>
+
+        <section class="panel" id="transport">
+          <p class="section-kicker">Protocol transport</p>
+          <h2>Transport</h2>
+          <p>Data is transmitted as XML encoded messages using a transport protocol similar to HTTP. The main difference from HTTP is that IPA is asynchronous. Message encoding is UTF-8.</p>
+          <h3>Example session</h3>
+          <p>The client connects to server and sends the following request:</p>
+          <pre><code>PUT / IPA/1.0
+Content-Length: 52
+
+&lt;TextMessage Id="100" To="123"&gt;Testing&lt;/TextMessage&gt;</code></pre>
+          <p>If an acknowledgement was requested (and it was, in this case), the server eventually responds with:</p>
+          <pre><code>PUT / IPA/1.0
+Content-Length: 35
+
+&lt;Ack Id="100" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+          <h3>Transport protocol</h3>
+          <p>The purpose of the transport protocol is to let the receiver know where messages start and end.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Part</th>
+                <th>Example</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Command</td>
+                <td><code>PUT / IPA/1.0</code></td>
+                <td>Fixed request line</td>
+              </tr>
+              <tr>
+                <td>Headers</td>
+                <td><code>Content-Length: 52</code></td>
+                <td>Length metadata</td>
+              </tr>
+              <tr>
+                <td>Separator</td>
+                <td>Empty line</td>
+                <td>Separates headers from message</td>
+              </tr>
+              <tr>
+                <td>Message</td>
+                <td><code>&lt;TextMessage Id="100" To="123"&gt;Testing&lt;/TextMessage&gt;</code></td>
+                <td>XML data</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Requirements</h3>
+          <ul>
+            <li>The command is always PUT, path is always root and protocol is IPA/1.0.</li>
+            <li>Content-Length is mandatory.</li>
+            <li>Other header fields may be added, but the other end may not be able to interpret them.</li>
+            <li>XML data is either sent as pure 7-bit ASCII, or UTF-8.</li>
+          </ul>
+        </section>
+
+        <section class="panel" id="messages">
+          <p class="section-kicker">Message map</p>
+          <h2>Messages</h2>
+          <h3>Overview</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Message</th>
+                <th>Description</th>
+                <th>Transmitter</th>
+                <th>Receiver</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="#ack">ACK</a></td>
+                <td>Acknowledgement</td>
+                <td>Mandatory</td>
+                <td>Mandatory</td>
+              </tr>
+              <tr>
+                <td><a href="#heartbeat-message">HEARTBEAT</a></td>
+                <td>Connection test</td>
+                <td>Mandatory</td>
+                <td>Mandatory</td>
+              </tr>
+              <tr>
+                <td><a href="#textmessage-message">TEXTMESSAGE</a></td>
+                <td>Send a text message</td>
+                <td>Optional</td>
+                <td>Optional</td>
+              </tr>
+              <tr>
+                <td><a href="#alarm">ALARM</a></td>
+                <td>Send an alarm</td>
+                <td>Optional</td>
+                <td>Optional</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel" id="ack">
+          <p class="section-kicker">Message type</p>
+          <h2>ACK</h2>
+          <p>Acknowledgement to a received message.</p>
+          <p>The server responds with an Ack message, copying the Id attribute of the request that it pertains to. The Result attribute contains a result code, and the tag contents may contain the result as plain text. The result codes are inspired by HTTP codes, where 200 means "OK" and 404 means "Not found". A detailed list of IPA result codes can be found in an appendix.</p>
+          <h3>Attributes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Id</td>
+                <td>Id as provided in the original request</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>Result</td>
+                <td>Status code</td>
+                <td>Yes</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Tag Contents</h3>
+          <p>English plain text description, or empty.</p>
+          <h3>Example</h3>
+          <pre><code>&lt;Ack Id="123" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="alarm">
+          <p class="section-kicker">Message type</p>
+          <h2>ALARM</h2>
+          <p>Request delivery of a notification of an alarm or event.</p>
+          <h3>Attributes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Id</td>
+                <td>Id for identification of acknowledgement message</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Elements</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Source</td>
+                <td>Source of the alarm. This can be just a simple ID, or a more detailed description where the ID consists of several parts marked up by other tags.</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>Type</td>
+                <td>Type of the alarm. The direct content of the element is an alarm type identifier, and there are also attributes to describe the alarm typ in detail.</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>Location</td>
+                <td>Location of the alarm, if known. This could be a beacon ID, a GPS coordinate or base station ID.</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="muted">(Click the element names to the left for details about each element.)</p>
+          <h3>Example - Simple alarm notification</h3>
+          <pre><code>&lt;Alarm&gt;&lt;Source&gt;209&lt;/Source&gt;&lt;Type&gt;FIRE&lt;/Type&gt;&lt;/Alarm&gt;</code></pre>
+          <h3>Example - Alarm with detailed information</h3>
+          <pre><code>&lt;Alarm&gt;
+    &lt;Source&gt;
+        &lt;Room&gt;209&lt;/Room&gt;
+        &lt;Detector&gt;33&lt;/Detector&gt;
+    &lt;/Source&gt;
+    &lt;Type Severity="100"&gt;FIRE&lt;/Type&gt;
+&lt;/Alarm&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="acknowledgement">
+          <p class="section-kicker">Behavior guide</p>
+          <h2>Acknowledgement</h2>
+          <p>An IPA server must always respond with an acknowledgement message within <a href="#timing-constants">T ACK</a> seconds, if the message contains an ID. When the client requests an acknowledgement, the ID is added to the message as an attribute.</p>
+          <pre><code>&lt;TextMessage Id="100" To="123456"&gt;Text to display&lt;/TextMessage&gt;</code></pre>
+          <p>The server responds with an Ack message, copying the Id attribute. The Result attribute contains a result code, and the tag contents may contain the result as plain text. The result codes are inspired by HTTP codes, where 200 means "OK" and 404 means "Not found". A detailed list of IPA result codes can be found in an appendix.</p>
+          <p>If the message is delivered, the server will respond:</p>
+          <pre><code>&lt;Ack Id="100" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+          <p>If the designated paging device is not found, the server would respond as follows:</p>
+          <pre><code>&lt;Ack Id="100" Result="404"&gt;Not found&lt;/Ack&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="alarm-location">
+          <p class="section-kicker">Element reference</p>
+          <h2>AlarmLocation</h2>
+          <h3>Elements</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CellInfo</td>
+                <td>Mobile network cell info, see below.</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>BeaconId</td>
+                <td>Beacon ID as direct content</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Gps</td>
+                <td>GPS coordinates, see below.</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>CellInfo</h3>
+          <p>The CellInfo element contains the following sub-elements.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>MCC</td>
+                <td>Mobile country code, 3 digits.</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>MNC</td>
+                <td>Mobile network code, 3 digits.</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>LAC</td>
+                <td>Location area code, 2 octets in decimal representation (5 digits).</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>CI</td>
+                <td>Cell ID - 2 octects in decimal representation (5 digits).</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>TA</td>
+                <td>Timing advance</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Gps</h3>
+          <p>The Gps element contains the following sub-elements.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Longitude</td>
+                <td>Last known longitude in decimal degrees with a decimal point. Represented by a negative number when west of the 0-meridian.</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Latitude</td>
+                <td>Last known latitude in decimal degrees with a decimal point.</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Altitude</td>
+                <td>Last known altitude in metres. Can be negative if below sea level.</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Direction</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Speed</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>TimeStamp</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>HorizontalAccuracy</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>VerticalAccuracy</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>DirectionAccuracy</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>SpeedAccuracy</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Example - CellInfo</h3>
+          <pre><code>&lt;Location&gt;
+    &lt;CellInfo&gt;
+        &lt;MCC&gt;240&lt;/MCC&gt;
+        &lt;MNC&gt;10&lt;/MNC&gt;
+        &lt;LAC&gt;57005&lt;/LAC&gt;
+        &lt;CI&gt;48879&lt;/CI&gt;
+    &lt;/CellInfo&gt;
+&lt;/Location&gt;</code></pre>
+          <h3>Example - BeaconId</h3>
+          <pre><code>&lt;Location&gt;&lt;BeaconId&gt;100&lt;/BeaconId&gt;&lt;/Location&gt;</code></pre>
+          <h3>Example - Gps</h3>
+          <pre><code>&lt;Location&gt;
+    &lt;Gps&gt;
+        &lt;Longitude&gt;17.87930&lt;/Longitude&gt;
+        &lt;Latitude&gt;59.41310&lt;/Latitude&gt;
+        &lt;Altitude&gt;57&lt;/Altitude&gt;
+    &lt;/Gps&gt;
+&lt;/Location&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="alarm-source">
+          <p class="section-kicker">Element reference</p>
+          <h2>AlarmSource</h2>
+          <p>The alarm source can be described in detail using the following elements. The alarm receiver may consider the contents of the Source tag as direct content, if it doesn't need the details.</p>
+          <p>Note that this is meant to identify the source of the alarm, not the location of the alarm. The difference is that a source doesn't change for the duration of the alarm.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Client</td><td>Client, company or customer ID</td><td>No</td></tr>
+              <tr><td>Department</td><td>Department within the client's organization</td><td>No</td></tr>
+              <tr><td>Building</td><td>Building ID, when there are multiple buildings</td><td>No</td></tr>
+              <tr><td>Ward</td><td>Ward (as in hospital ward)</td><td>No</td></tr>
+              <tr><td>Section</td><td>Section of the building</td><td>No</td></tr>
+              <tr><td>Room</td><td>Room number</td><td>No</td></tr>
+              <tr><td>Detector</td><td>Detector ID</td><td>No</td></tr>
+              <tr><td>Transmitter</td><td>Transmitter ID (serial number), if the alarm was triggered by a wireless transmitter.</td><td>No</td></tr>
+              <tr><td>Phone</td><td>Phone number</td><td>No</td></tr>
+              <tr><td>Address</td><td>Slave address in a bus system, IP address, EMail address etc.</td><td>No</td></tr>
+            </tbody>
+          </table>
+          <h3>Example - Simple ID as direct content</h3>
+          <pre><code>&lt;Source&gt;219&lt;/Source&gt;</code></pre>
+          <h3>Example - Detailed source information</h3>
+          <pre><code>&lt;Source&gt;
+    &lt;Client&gt;10026&lt;/Client&gt;
+    &lt;Building&gt;B&lt;/Building&gt;
+    &lt;Ward&gt;2&lt;/Ward&gt;
+    &lt;Room&gt;219&lt;/Room&gt;
+&lt;/Source&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="alarm-type">
+          <p class="section-kicker">Element reference</p>
+          <h2>AlarmType</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Qualifier</td>
+                <td>&nbsp;</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Severity</td>
+                <td>Severity level from 0 to 100, where 100 is the most severe.</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel" id="heartbeat-message">
+          <p class="section-kicker">Message type</p>
+          <h2>HEARTBEAT</h2>
+          <p>In order to monitor the connection, a heartbeat signal can be sent by either end of the connection. By assigning the Id attribute, the other end will be required to respond with an acknowledgement message.</p>
+          <h3>Attributes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Id</td>
+                <td>Id for identification of acknowledgement message</td>
+                <td>No</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Tag Contents</h3>
+          <p>None.</p>
+          <h3>Example</h3>
+          <p>Request</p>
+          <pre><code>&lt;Heartbeat Id="123" /&gt;</code></pre>
+          <p>Response</p>
+          <pre><code>&lt;Ack Id="123" Status="200"&gt;OK&lt;/Ack&gt;</code></pre>
+          <h3>Example</h3>
+          <p>Request</p>
+          <pre><code>&lt;Heartbeat /&gt;</code></pre>
+          <p>Response</p>
+          <p>None</p>
+        </section>
+
+        <section class="panel" id="heartbeat-guide">
+          <p class="section-kicker">Behavior guide</p>
+          <h2>Heartbeat</h2>
+          <p>In order to monitor the connection, a heartbeat signal can be sent by the either end of the connection. If the alarm receiver doesn't receive the heartbeat in time, it may consider the connection broken and issue a warning to the operator. The alarm receiver may also send the heartbeat signal to the alarm transmitter to monitor the connection from its end. Similarly, the alarm transmitter can monitor the connection and issue an on-site warning if the alarm receiver goes off line.</p>
+          <pre><code>&lt;Heartbeat Id="103"&gt;&lt;/Heartbeat&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="result-codes">
+          <p class="section-kicker">Appendix</p>
+          <h2>Result Codes</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Default Plain Text</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>200</td><td>OK</td><td>Message was accepted / delivered to, and acknowledged by, the final destination.</td></tr>
+              <tr><td>202</td><td>Accepted</td><td>Message was accepted and queued for delivery, but has not yet been delivered.</td></tr>
+              <tr><td>400</td><td>Bad Request</td><td>The datagram was malformed.</td></tr>
+              <tr><td>401</td><td>Unauthorized</td><td>Authorization and identification is required.</td></tr>
+              <tr><td>403</td><td>Forbidden</td><td>The client does not have sufficient privileges to perform the requested action.</td></tr>
+              <tr><td>404</td><td>Not Found</td><td>Destination not found (unknown pager number).</td></tr>
+              <tr><td>500</td><td>Internal Server Error</td><td>Internal server error.</td></tr>
+              <tr><td>503</td><td>Service Unavailable</td><td>Temporary problems with the server or an external dependency.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel" id="security">
+          <p class="section-kicker">Operational notes</p>
+          <h2>Security</h2>
+          <p>Security can be divided into the following three topics.</p>
+          <h3>Identification</h3>
+          <p>If multiple clients are to communicate with the same server, it might be necessary for the clients to identify themselves. Usually this is used in conjunction with authentication and encryption.</p>
+          <pre><code>&lt;Heartbeat Id="103" ClientId="012345"&gt;&lt;/Heartbeat&gt;</code></pre>
+          <h3>Authentication</h3>
+          <p>Authentication is as simple as adding a password to each datagram. Both server and client may require authentication.</p>
+          <pre><code>&lt;Heartbeat Id="103" Authentication="dz80mi0pql+js9028jm8c89jv8"&gt;&lt;/Heartbeat&gt;</code></pre>
+          <h3>Encryption</h3>
+          <p>Authentication is essentially pointless without encryption. If authentication is used, the TCP socket should be encrypted using SSL.</p>
+        </section>
+
+        <section class="panel" id="sending-alarms">
+          <p class="section-kicker">Guide</p>
+          <h2>Sending Alarms</h2>
+          <p>Even though the ESPA 4.4.4 protocol was designed for simple text paging, one of the most common applications has been alarm system integration. In these cases, it is not enough to simply send a text message. The different alarm systems need more detailed information about the alarm, such as information about the source of the alarm, the type of alarm and whether the alarm is set or reset. The IPA protocol includes a specific Alarm datagram to handle these integrations. Here's a simple example:</p>
+          <pre><code>&lt;Alarm Id="101"&gt;
+    &lt;Source&gt;
+        &lt;Section&gt;5&lt;/Section&gt;
+    &lt;/Source&gt;
+    &lt;Type Qualifier="New"&gt;FIRE&lt;/Type&gt;
+&lt;/Alarm&gt;</code></pre>
+          <p>The Id attribute has the same meaning as always - the client is requesting an acknowledgement to this message.</p>
+          <p>The Source tag specifies the source of the alarm. Source can contain various identification data, such as Section, Room, Address, Id and similar.</p>
+          <p>Type specifies the type of the alarm. The type Qualifier can be either New, Updated or Reset. Updated means that the alarm has been sent before, but contains new information this time. Reset means that the alarm has been reset.</p>
+          <p>The following example shows includes all optional tags:</p>
+          <pre><code>&lt;Alarm Id="102"&gt;
+    &lt;Source&gt;
+        &lt;Section&gt;5&lt;/Section&gt;
+        &lt;Room&gt;50&lt;/Room&gt;
+        &lt;Floor&gt;4&lt;/Floor&gt;
+        &lt;Building&gt;1&lt;/Building&gt;
+        &lt;Id&gt;45678&lt;/Id&gt;
+        &lt;Address&gt;99&lt;/Address&gt;
+    &lt;/Source&gt;
+    &lt;Type Qualifier="New" Severity="100"&gt;FIRE&lt;/Type&gt;
+    &lt;Location&gt;
+        &lt;Gps&gt;
+            &lt;Longitude&gt;17.87930&lt;/Longitude&gt;
+            &lt;Latitude&gt;59.41310&lt;/Latitude&gt;
+            &lt;Altitude&gt;57&lt;/Altitude&gt;
+        &lt;/Gps&gt;
+    &lt;/Location&gt;
+    &lt;Display Background="#FF0000" Foreground="#FFFFFF" Priority="90"&gt;
+        &lt;Text&gt;
+            &lt;Top&gt;Building 1&lt;/Top&gt;
+            &lt;Left&gt;Room 50&lt;/Left&gt;
+            &lt;Right&gt;Fire Alarm&lt;/Right&gt;
+            &lt;Bottom&gt;Fourth floor&lt;/Bottom&gt;
+        &lt;/Text&gt;
+        &lt;Options&gt;
+            &lt;Option Name="DELAY"&gt;Delay alarm&lt;/Option&gt;
+        &lt;/Options&gt;
+    &lt;/Display&gt;
+&lt;/Alarm&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="textmessage-message">
+          <p class="section-kicker">Message type</p>
+          <h2>TEXTMESSAGE</h2>
+          <p>Request delivery of a plain text message.</p>
+          <h3>Attributes</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+                <th>Mandatory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Id</td><td>Id for identification of acknowledgement message</td><td>No</td></tr>
+              <tr><td>To</td><td>Recipient number or address</td><td>No</td></tr>
+              <tr><td>From</td><td>Sender number or address</td><td>No</td></tr>
+            </tbody>
+          </table>
+          <h3>Tag Contents</h3>
+          <p>Message text.</p>
+          <h3>Example</h3>
+          <pre><code>&lt;TextMessage
+    From="sender@localhost"
+    To="receiver@localhost"&gt;Good Morning!&lt;/TextMessage&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="textmessage-guide">
+          <p class="section-kicker">Guide</p>
+          <h2>TextMessage</h2>
+          <pre><code>&lt;TextMessage To="Recipient" Id="MessageId"&gt;Text to display&lt;/TextMessage&gt;</code></pre>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Optional</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>To</td>
+                <td>Yes</td>
+                <td>Recipient. This could be a phone number, pager number, email address or anything else that identifies the recipient. You can also omit the attribute and let the server handle it.</td>
+              </tr>
+              <tr>
+                <td>Id</td>
+                <td>Yes</td>
+                <td>&nbsp;</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Examples</h3>
+          <pre><code>&lt;TextMessage To="someone@somewhere.com"&gt;Hello,
+This is a text message.&lt;/TextMessage&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="timing-constants">
+          <p class="section-kicker">Timing</p>
+          <h2>Timing Constants</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Description</th>
+                <th>Min</th>
+                <th>Max</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>T ACK [s]</td><td>Time between message and acknowledgement</td><td>-</td><td>8</td></tr>
+              <tr><td>T HB [s]</td><td>Heartbeat interval</td><td>10</td><td>-</td></tr>
+              <tr><td>T MHB [s]</td><td>Delay after missed heartbeat until a new connection attempt is made</td><td>10</td><td>60</td></tr>
+              <tr><td>T ALIVE [s]</td><td>How long the connection is kept alive without communication</td><td>120</td><td>600</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel" id="changes">
+          <p class="section-kicker">Published site history</p>
+          <h2>Changes</h2>
+          <p>The current live site lists the following update date and changed entries.</p>
+          <h3>2025-03-04</h3>
+          <div class="changes-grid">
+            <span>sidebar</span>
+            <span>menu</span>
+            <span>Transport</span>
+            <span>Timing Constants</span>
+            <span>TextMessage</span>
+            <span>TEXTMESSAGE</span>
+            <span>Simple example</span>
+            <span>Sending Alarms</span>
+            <span>Security</span>
+            <span>Result Codes</span>
+            <span>Messages</span>
+            <span>Internet Protocol for Alarm Management</span>
+            <span>Heartbeat</span>
+            <span>HEARTBEAT</span>
+            <span>AlarmType</span>
+            <span>AlarmSource</span>
+            <span>AlarmLocation</span>
+            <span>Acknowledgement</span>
+            <span>ALARM</span>
+            <span>ACK</span>
+          </div>
+        </section>
+
+        <section class="panel" id="contribute">
+          <p class="section-kicker">Discussion</p>
+          <h2>Contribute</h2>
+          <p>Join the IPA group to discuss the protocol and future development. The current published site points readers to the Google Group as the public participation path.</p>
+          <p><a class="button button-primary" href="https://groups.google.com/" target="_blank" rel="noreferrer">Go to the IPA group</a></p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>OpenIPA / Internet Protocol for Alarm Management</p>
+    <p>Static site rebuild prepared to preserve the current published draft content in a clearer structure.</p>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
