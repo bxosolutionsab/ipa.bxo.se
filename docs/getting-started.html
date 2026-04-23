@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenIPA | Getting Started</title>
+  <meta name="description" content="OpenIPA quick start: protocol intent, a first message example, and the acknowledgement model.">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="OpenIPA home">
+      <span class="brand-mark">IPA</span>
+      <span class="brand-copy">
+        <strong>OpenIPA</strong>
+        <span>Internet Protocol for Alarm Management</span>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="../index.html">Overview</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="transport.html">Transport</a>
+      <a href="messages.html">Messages</a>
+      <a href="reference.html">Reference</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
+  </header>
+
+  <nav class="mobile-nav" id="site-nav" aria-label="Mobile" data-mobile-nav>
+    <a href="../index.html">Overview</a>
+    <a href="getting-started.html">Getting Started</a>
+    <a href="transport.html">Transport</a>
+    <a href="messages.html">Messages</a>
+    <a href="reference.html">Reference</a>
+  </nav>
+
+  <main class="docs-main">
+    <section class="page-intro">
+      <p class="eyebrow">Getting Started</p>
+      <h1>Read this first</h1>
+      <p>This page collects the short version of the draft: what OpenIPA is trying to do, what a minimal message looks like, and how acknowledgements work.</p>
+    </section>
+
+    <section class="content-shell">
+      <aside class="toc" data-page-nav>
+        <p class="toc-title">On this page</p>
+        <a href="#protocol">Protocol summary</a>
+        <a href="#simple-example">Simple example</a>
+        <a href="#acknowledgement">Acknowledgement model</a>
+      </aside>
+
+      <div class="content-flow">
+        <section class="panel" id="protocol">
+          <p class="section-kicker">Draft summary</p>
+          <h2>Internet Protocol for Alarm Management</h2>
+          <p>OpenIPA is intended as a simple, open, IP-based replacement for ESPA 4.4.4. The published draft focuses on straightforward XML messages carried over a lightweight TCP framing layer, so alarm integrations can move from serial-era assumptions to modern IP infrastructure without becoming overly complex.</p>
+          <p>This documentation reflects the current draft. It tightens wording and removes obvious contradictions, but it does not claim new protocol behavior where the draft is still incomplete.</p>
+        </section>
+
+        <section class="panel" id="simple-example">
+          <p class="section-kicker">Example</p>
+          <h2>Smallest useful message</h2>
+          <p>The simplest published example is a text message with no acknowledgement requested.</p>
+          <pre><code>&lt;TextMessage To="123456"&gt;Text to display&lt;/TextMessage&gt;</code></pre>
+          <p>When transmitted over the TCP framing described in this draft, the payload is preceded by a fixed request line and a `Content-Length` header.</p>
+          <pre><code>PUT / IPA/1.0
+Content-Length: 56
+
+&lt;TextMessage To="123456"&gt;Text to display&lt;/TextMessage&gt;</code></pre>
+          <p>The original page also included a C# example. The essential point is that the XML bytes are written after the framing header and empty separator line.</p>
+        </section>
+
+        <section class="panel" id="acknowledgement">
+          <p class="section-kicker">Behavior</p>
+          <h2>Acknowledgement model</h2>
+          <p>If a sender includes an `Id` attribute in a message, it is requesting an acknowledgement. The receiver is expected to return an `Ack` message within `T ACK` seconds and copy the same `Id` value into the acknowledgement.</p>
+          <pre><code>&lt;TextMessage Id="100" To="123456"&gt;Text to display&lt;/TextMessage&gt;</code></pre>
+          <p>A successful acknowledgement uses the `Result` attribute.</p>
+          <pre><code>&lt;Ack Id="100" Result="200"&gt;OK&lt;/Ack&gt;</code></pre>
+          <p>A failure can be returned with another result code, for example:</p>
+          <pre><code>&lt;Ack Id="100" Result="404"&gt;Not found&lt;/Ack&gt;</code></pre>
+          <p>The published draft uses result codes inspired by HTTP status codes, but they are part of the OpenIPA application layer, not HTTP itself.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>OpenIPA / Internet Protocol for Alarm Management</p>
+    <p>Continue with the transport rules for framing, timing, and security notes.</p>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+</body>
+</html>
