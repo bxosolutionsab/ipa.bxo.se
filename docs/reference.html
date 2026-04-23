@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenIPA | Reference</title>
+  <meta name="description" content="OpenIPA reference for alarm sub-elements, result codes, and current published site history.">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="OpenIPA home">
+      <span class="brand-mark">IPA</span>
+      <span class="brand-copy">
+        <strong>OpenIPA</strong>
+        <span>Internet Protocol for Alarm Management</span>
+      </span>
+    </a>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="../index.html">Overview</a>
+      <a href="getting-started.html">Getting Started</a>
+      <a href="transport.html">Transport</a>
+      <a href="messages.html">Messages</a>
+      <a href="reference.html">Reference</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>Menu</button>
+  </header>
+
+  <nav class="mobile-nav" id="site-nav" aria-label="Mobile" data-mobile-nav>
+    <a href="../index.html">Overview</a>
+    <a href="getting-started.html">Getting Started</a>
+    <a href="transport.html">Transport</a>
+    <a href="messages.html">Messages</a>
+    <a href="reference.html">Reference</a>
+  </nav>
+
+  <main class="docs-main">
+    <section class="page-intro">
+      <p class="eyebrow">Reference</p>
+      <h1>Alarm structures and appendices</h1>
+      <p>This page gathers the lower-level element reference, the current result-code list, and the published change summary.</p>
+    </section>
+
+    <section class="content-shell">
+      <aside class="toc" data-page-nav>
+        <p class="toc-title">On this page</p>
+        <a href="#alarm-source">Alarm source</a>
+        <a href="#alarm-type">Alarm type</a>
+        <a href="#alarm-location">Alarm location</a>
+        <a href="#result-codes">Result codes</a>
+        <a href="#changes">Changes</a>
+        <a href="#contribute">Contribute</a>
+      </aside>
+
+      <div class="content-flow">
+        <section class="panel" id="alarm-source">
+          <p class="section-kicker">Element reference</p>
+          <h2>Alarm source</h2>
+          <p>The `Source` element identifies where the alarm originates. The draft allows either direct text content or a structured set of child elements.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Client</td><td>Client, company, or customer identifier.</td><td>No</td></tr>
+                <tr><td>Department</td><td>Department within the client's organization.</td><td>No</td></tr>
+                <tr><td>Building</td><td>Building identifier when there are multiple buildings.</td><td>No</td></tr>
+                <tr><td>Ward</td><td>Ward, for example in a hospital.</td><td>No</td></tr>
+                <tr><td>Section</td><td>Section of the building.</td><td>No</td></tr>
+                <tr><td>Room</td><td>Room number.</td><td>No</td></tr>
+                <tr><td>Detector</td><td>Detector identifier.</td><td>No</td></tr>
+                <tr><td>Transmitter</td><td>Wireless transmitter identifier or serial number.</td><td>No</td></tr>
+                <tr><td>Phone</td><td>Phone number.</td><td>No</td></tr>
+                <tr><td>Address</td><td>Address in another addressing scheme such as a bus address, IP address, or email address.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <pre><code>&lt;Source&gt;219&lt;/Source&gt;</code></pre>
+          <pre><code>&lt;Source&gt;
+    &lt;Client&gt;10026&lt;/Client&gt;
+    &lt;Building&gt;B&lt;/Building&gt;
+    &lt;Ward&gt;2&lt;/Ward&gt;
+    &lt;Room&gt;219&lt;/Room&gt;
+&lt;/Source&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="alarm-type">
+          <p class="section-kicker">Element reference</p>
+          <h2>Alarm type</h2>
+          <p>The `Type` element carries the alarm type identifier as its text content. The draft also defines two optional attributes.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Qualifier</td><td>Qualifier such as `New`, `Updated`, or `Reset`, as used in the draft examples.</td><td>No</td></tr>
+                <tr><td>Severity</td><td>Severity value from 0 to 100, where 100 is most severe.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="alarm-location">
+          <p class="section-kicker">Element reference</p>
+          <h2>Alarm location</h2>
+          <p>The `Location` element is optional and can describe the alarm position through a beacon identifier, cell information, or GPS data.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>CellInfo</td><td>Mobile network cell information.</td><td>No</td></tr>
+                <tr><td>BeaconId</td><td>Beacon identifier as direct content.</td><td>No</td></tr>
+                <tr><td>Gps</td><td>GPS coordinates and related metadata.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>CellInfo</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>MCC</td><td>Mobile country code, 3 digits.</td><td>Yes</td></tr>
+                <tr><td>MNC</td><td>Mobile network code.</td><td>Yes</td></tr>
+                <tr><td>LAC</td><td>Location area code, represented in decimal.</td><td>Yes</td></tr>
+                <tr><td>CI</td><td>Cell identifier, represented in decimal.</td><td>Yes</td></tr>
+                <tr><td>TA</td><td>Timing advance.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Gps</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Description</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Longitude</td><td>Longitude in decimal degrees. Negative values indicate west of the prime meridian.</td><td>No</td></tr>
+                <tr><td>Latitude</td><td>Latitude in decimal degrees.</td><td>No</td></tr>
+                <tr><td>Altitude</td><td>Altitude in metres. Negative values are allowed below sea level.</td><td>No</td></tr>
+                <tr><td>Direction</td><td>Not described further in the published draft.</td><td>No</td></tr>
+                <tr><td>Speed</td><td>Not described further in the published draft.</td><td>No</td></tr>
+                <tr><td>TimeStamp</td><td>Not described further in the published draft.</td><td>No</td></tr>
+                <tr><td>HorizontalAccuracy</td><td>Not described further in the published draft.</td><td>No</td></tr>
+                <tr><td>VerticalAccuracy</td><td>Not described further in the published draft.</td><td>No</td></tr>
+                <tr><td>DirectionAccuracy</td><td>Not described further in the published draft.</td><td>No</td></tr>
+                <tr><td>SpeedAccuracy</td><td>Not described further in the published draft.</td><td>No</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <pre><code>&lt;Location&gt;
+    &lt;CellInfo&gt;
+        &lt;MCC&gt;240&lt;/MCC&gt;
+        &lt;MNC&gt;10&lt;/MNC&gt;
+        &lt;LAC&gt;57005&lt;/LAC&gt;
+        &lt;CI&gt;48879&lt;/CI&gt;
+    &lt;/CellInfo&gt;
+&lt;/Location&gt;</code></pre>
+          <pre><code>&lt;Location&gt;&lt;BeaconId&gt;100&lt;/BeaconId&gt;&lt;/Location&gt;</code></pre>
+          <pre><code>&lt;Location&gt;
+    &lt;Gps&gt;
+        &lt;Longitude&gt;17.87930&lt;/Longitude&gt;
+        &lt;Latitude&gt;59.41310&lt;/Latitude&gt;
+        &lt;Altitude&gt;57&lt;/Altitude&gt;
+    &lt;/Gps&gt;
+&lt;/Location&gt;</code></pre>
+        </section>
+
+        <section class="panel" id="result-codes">
+          <p class="section-kicker">Appendix</p>
+          <h2>Result codes</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Default text</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>200</td><td>OK</td><td>Message was accepted or delivered and acknowledged by the final destination.</td></tr>
+                <tr><td>202</td><td>Accepted</td><td>Message was accepted and queued, but not yet delivered.</td></tr>
+                <tr><td>400</td><td>Bad Request</td><td>The datagram was malformed.</td></tr>
+                <tr><td>401</td><td>Unauthorized</td><td>Identification or authorization is required.</td></tr>
+                <tr><td>403</td><td>Forbidden</td><td>The client lacks sufficient privileges for the requested action.</td></tr>
+                <tr><td>404</td><td>Not Found</td><td>The destination was not found.</td></tr>
+                <tr><td>500</td><td>Internal Server Error</td><td>The server failed while handling the message.</td></tr>
+                <tr><td>503</td><td>Service Unavailable</td><td>The server or an external dependency is temporarily unavailable.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="changes">
+          <p class="section-kicker">Published site history</p>
+          <h2>Changes</h2>
+          <p>The current published site lists one dated update entry.</p>
+          <h3>2025-03-04</h3>
+          <div class="changes-grid">
+            <span>Sidebar</span>
+            <span>Menu</span>
+            <span>Transport</span>
+            <span>Timing Constants</span>
+            <span>TextMessage</span>
+            <span>TEXTMESSAGE</span>
+            <span>Simple example</span>
+            <span>Sending Alarms</span>
+            <span>Security</span>
+            <span>Result Codes</span>
+            <span>Messages</span>
+            <span>Internet Protocol for Alarm Management</span>
+            <span>Heartbeat</span>
+            <span>HEARTBEAT</span>
+            <span>AlarmType</span>
+            <span>AlarmSource</span>
+            <span>AlarmLocation</span>
+            <span>Acknowledgement</span>
+            <span>ALARM</span>
+            <span>ACK</span>
+          </div>
+        </section>
+
+        <section class="panel" id="contribute">
+          <p class="section-kicker">Discussion</p>
+          <h2>Contribute</h2>
+          <p>The public participation path published on the site is the Google Group.</p>
+          <p><a class="button button-primary" href="https://groups.google.com/" target="_blank" rel="noreferrer">Go to the IPA group</a></p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>OpenIPA / Internet Protocol for Alarm Management</p>
+    <p>The README in the repository explains how to maintain this static site without a build step.</p>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+</body>
+</html>
